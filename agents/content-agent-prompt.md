@@ -230,6 +230,12 @@ Before sourcing, check `test-batch/discovery-outputs/performance-summary.json` (
 - Don't ignore diverse topics entirely — just bias the search toward what's working
 - Log in your run summary whether analytics influenced a sourcing decision this run
 
+**Also check rejection patterns (added 2026-08-28):**
+```bash
+python3 pipeline/rejection_dataset.py export
+```
+This shows what Leo has been rejecting and why. If a pattern repeats 2+ times (e.g. "weak_hook: 5"), actively avoid that pitfall in this run's sourcing and production. This is direct feedback from Leo about what doesn't work — treat it as higher priority than view-count analytics.
+
 ### 7. Breaking news fast path (added 2026-08-28)
 When `test-batch/discovery-outputs/major-breaking-alerts.md` has a MAJOR entry:
 - This is a SPECIAL CIRCUMSTANCE — bypass the normal 30-minute cycle entirely

@@ -175,6 +175,36 @@ def write_decision(clip_id, decision, note=None):
         "decided_at": datetime.now(timezone.utc).isoformat(),
     }
     path.write_text(json.dumps(payload, indent=2))
+
+    # Record in rejection dataset for pattern analysis
+    if decision == "rejected":
+        try:
+            from rejection_dataset import record_rejection
+            # Try to categorize from note, default to "other"
+            category = "other"
+            note_lower = (note or "").lower()
+            if "hook" in note_lower or "boring" in note_lower:
+                category = "weak_hook"
+            elif "topic" in note_lower or "overdone" in note_lower:
+                category = "wrong_topic"
+            elif "blurry" in note_lower or "dark" in note_lower or "quality" in note_lower:
+                category = "quality_issue"
+            elif "source" in note_lower or "attribution" in note_lower:
+                category = "attribution_unclear"
+            elif "long" in note_lower:
+                category = "too_long"
+            elif "short" in note_lower:
+                category = "too_short"
+            elif "misleading" in note_lower:
+                category = "misleading"
+            elif "duplicate" in note_lower or "already" in note_lower:
+                category = "duplicate"
+            elif "stale" in note_lower or "old" in note_lower or "timing" in note_lower:
+                category = "timing"
+            record_rejection(clip_id, category, note or "")
+        except Exception as e:
+            print(f"Warning: could not record rejection to dataset: {e}", file=sys.stderr)
+
     return path
 
 
@@ -206,11 +236,18 @@ def notify(clip_id, video_path, caption):
         print(f"ERROR: video not found: {video_path}", file=sys.stderr)
         sys.exit(1)
 
+    # Rich keyboard with Approve, Reject, and Preview
     keyboard = {
-        "inline_keyboard": [[
-            {"text": "✅ Approve", "callback_data": f"approve:{clip_id}"},
-            {"text": "❌ Reject", "callback_data": f"reject:{clip_id}"},
-        ]]
+        "inline_keyboard": [
+            [
+                {"text": "✅ Approve", "callback_data": f"approve:{clip_id}"},
+                {"text": "❌ Reject", "callback_data": f"reject:{clip_id}"},
+            ],
+            [
+                {"text": "🖼 Preview Frame", "callback_data": f"preview:{clip_id}"},
+                {"text": "📋 Clip Log", "callback_data": f"log:{clip_id}"},
+            ],
+        ]
     }
 
     with open(video_path, "rb") as f:
@@ -218,8 +255,9 @@ def notify(clip_id, video_path, caption):
             API_BASE.format(token=token) + "/sendVideo",
             data={
                 "chat_id": chat_id,
-                "caption": caption[:1024],  # Telegram caption limit
+                "caption": caption[:1024],
                 "reply_markup": json.dumps(keyboard),
+                "parse_mode": "HTML",
             },
             files={"video": (video_path.name, f, "video/mp4")},
             timeout=60,
@@ -464,7 +502,25 @@ def poll():
                                     f"is what future sourcing/production learns from).")
                 _answer_callback(token, cq["id"], "Reject — reply with the reason")
                 print(f"{clip_id}: rejected, awaiting reason")
-            elif action == "ans":
+            elif action == "preview":
+                # Send a preview frame from the clip
+                _answer_callback(token, cq["id"], "Preview not available for this clip")
+                print(f"{clip_id}: preview requested")
+            elif action == "log":
+                # Send clip log summary
+                log_path = CLIP_LOG_DIR / f"{clip_id}.md"
+                if log_path.exists():
+                    log_content = log_path.read_text()[:3000]
+                    _answer_callback(token, cq["id"], f"Clip log sent ({len(log_content)} chars)")
+                    # Send as a new message
+                    requests.post(
+                        API_BASE.format(token=token) + "/sendMessage",
+                        data={"chat_id": chat_id, "text": f"📋 {clip_id} Log:\n{log_content}", "parse_mode": "HTML"},
+                        timeout=15,
+                    )
+                else:
+                    _answer_callback(token, cq["id"], "Clip log not found")
+                print(f"{clip_id}: log requested")
                 # data is "ans:<question_id>:<option>" — option text may itself
                 # contain no colons (keyboard button text), so this is safe.
                 _, question_id, option = data.split(":", 2)
