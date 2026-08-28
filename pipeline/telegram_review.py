@@ -38,7 +38,9 @@ State (durable across cron runs, since each run is a fresh process):
 import argparse
 import json
 import os
+import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -61,7 +63,16 @@ def load_credential(path, label):
     if not path.exists():
         print(f"ERROR: {path} not found — {label}", file=sys.stderr)
         sys.exit(1)
-    return path.read_text().strip()
+    # Check file permissions (should be 0o600)
+    st = path.stat()
+    perms = oct(st.st_mode & 0o777)
+    if perms != "0600":
+        print(f"WARNING: {path} has insecure permissions {perms}, expected 600. Fix with: chmod 600 {path}", file=sys.stderr)
+    value = path.read_text().strip()
+    if not value:
+        print(f"ERROR: {path} is empty — {label}", file=sys.stderr)
+        sys.exit(1)
+    return value
 
 
 QUESTIONS_DIR = ROOT / "test-batch" / "discovery-outputs" / ".telegram_questions"
@@ -144,7 +155,17 @@ def trigger_telegram_brain():
         print(f"WARNING: could not trigger telegram brain immediately ({e}) — 10-min backstop will still catch it", file=sys.stderr)
 
 
+import re
+CLIP_ID_PATTERN = re.compile(r'^[a-zA-Z0-9_-]+$')
+
+def _validate_clip_id(clip_id):
+    """Reject path traversal and unsafe characters in clip_id."""
+    if not clip_id or not CLIP_ID_PATTERN.match(clip_id):
+        raise ValueError(f"Invalid clip_id: {clip_id!r} — must match {CLIP_ID_PATTERN.pattern}")
+    return clip_id
+
 def write_decision(clip_id, decision, note=None):
+    clip_id = _validate_clip_id(clip_id)
     CLIP_LOG_DIR.mkdir(parents=True, exist_ok=True)
     path = CLIP_LOG_DIR / f"{clip_id}.review_decision.json"
     payload = {
@@ -161,14 +182,18 @@ def move_to_rejected(clip_id):
     """Move every ready-to-post file for this clip out of the ready queue,
     so a rejected clip can never accidentally get posted. Renames rather
     than deletes — nothing is lost, just moved out of the way."""
+    clip_id = _validate_clip_id(clip_id)
     REJECTED_DIR.mkdir(parents=True, exist_ok=True)
     moved = []
     if not READY_DIR.exists():
         return moved
-    for f in READY_DIR.glob(f"{clip_id}*"):
-        dest = REJECTED_DIR / f.name
-        f.rename(dest)
-        moved.append(str(dest))
+    # Use exact prefix match instead of glob to prevent path traversal attacks
+    # e.g. clip_id="tb01*" could match tb010, tb011 etc. if using glob
+    for f in READY_DIR.iterdir():
+        if f.name.startswith(clip_id + "_") or f.name.startswith(clip_id + "."):
+            dest = REJECTED_DIR / f.name
+            f.rename(dest)
+            moved.append(str(dest))
     return moved
 
 
@@ -235,6 +260,63 @@ def alert(text):
         sys.exit(1)
     print(f"Alert sent (message_id={result['result']['message_id']})")
     return result
+
+
+CHROME_BIN = "google-chrome"
+
+
+def send_report(html_path, caption="", pdf_path=None):
+    """Render an HTML report to PDF via headless Chrome and send it as a
+    Telegram document. Standing convention as of 2026-08-28, per Leo:
+    "all reports are to be sent in that format via telegram moving
+    forward" — any dashboard/diagnostic/report artifact should end here,
+    not just live in chat text.
+
+    pdf_path: where to write the PDF (defaults to a temp file, deleted
+    after sending unless explicitly given a real path to keep it).
+    """
+    html_path = Path(html_path)
+    if not html_path.exists():
+        print(f"ERROR: HTML file not found: {html_path}", file=sys.stderr)
+        sys.exit(1)
+
+    cleanup = pdf_path is None
+    if pdf_path is None:
+        pdf_path = Path(tempfile.mkstemp(suffix=".pdf")[1])
+    else:
+        pdf_path = Path(pdf_path)
+
+    cmd = [
+        CHROME_BIN, "--headless", "--disable-gpu", "--no-sandbox",
+        f"--print-to-pdf={pdf_path}", "--no-pdf-header-footer",
+        f"file://{html_path.resolve()}",
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+    if result.returncode != 0 or not pdf_path.exists():
+        print(f"ERROR: PDF conversion failed: {result.stderr[-1000:]}", file=sys.stderr)
+        sys.exit(1)
+
+    token = load_credential(TOKEN_FILE, "run @BotFather's /newbot and paste the token here")
+    chat_id = load_credential(CHAT_ID_FILE, "message your new bot once, then look up the chat id via getUpdates")
+
+    try:
+        with open(pdf_path, "rb") as f:
+            resp = requests.post(
+                API_BASE.format(token=token) + "/sendDocument",
+                data={"chat_id": chat_id, "caption": caption[:1024]},
+                files={"document": (html_path.stem + ".pdf", f, "application/pdf")},
+                timeout=60,
+            )
+        resp.raise_for_status()
+        result = resp.json()
+        if not result.get("ok"):
+            print(f"ERROR: Telegram API: {result}", file=sys.stderr)
+            sys.exit(1)
+        print(f"Report sent (message_id={result['result']['message_id']})")
+        return result
+    finally:
+        if cleanup:
+            pdf_path.unlink(missing_ok=True)
 
 
 def ask(question_id, question, options=None, recommended=None):
@@ -356,6 +438,15 @@ def poll():
 
         cq = update.get("callback_query")
         if cq:
+            # SECURITY: Verify the callback query comes from the authorized chat
+            # Bug: Previously callbacks weren't checked — anyone could approve/reject
+            cq_msg = cq.get("message", {})
+            cq_chat = cq_msg.get("chat", {})
+            if str(cq_chat.get("id")) != str(chat_id):
+                print(f"Ignoring unauthorized callback from chat {cq_chat.get('id')}", file=sys.stderr)
+                _answer_callback(token, cq["id"], "Unauthorized chat — not your bot.")
+                continue
+
             data = cq.get("data", "")
             action, _, clip_id = data.partition(":")
             msg = cq["message"]
@@ -513,6 +604,10 @@ def main() -> int:
     p_check = sub.add_parser("check")
     p_check.add_argument("question_id")
 
+    p_report = sub.add_parser("report")
+    p_report.add_argument("html_path", help="Path to the HTML report/dashboard to convert and send")
+    p_report.add_argument("--caption", default="", help="Caption text for the PDF document")
+
     args = parser.parse_args()
     if args.cmd == "notify":
         notify(args.clip_id, args.video_path, args.caption)
@@ -523,6 +618,8 @@ def main() -> int:
         ask(args.question_id, args.question, options, recommended=args.recommended)
     elif args.cmd == "check":
         check(args.question_id)
+    elif args.cmd == "report":
+        send_report(args.html_path, caption=args.caption)
     else:
         poll()
     return 0
