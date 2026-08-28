@@ -201,11 +201,12 @@ Before sourcing, check `test-batch/discovery-outputs/performance-summary.json` (
 
 ### 7. Breaking news fast path (added 2026-08-28)
 When `test-batch/discovery-outputs/major-breaking-alerts.md` has a MAJOR entry:
-- This is TOP PRIORITY — skip the normal sourcing queue
-- Produce the clip immediately (production is pre-authorized via `docs/build-plan/production-authorized.md`)
+- This is a SPECIAL CIRCUMSTANCE — bypass the normal 30-minute cycle entirely
+- Produce the clip IMMEDIATELY, regardless of when the last Content Agent run was
 - Send to Telegram for review IMMEDIATELY — don't batch with other clips
-- Use `python3 pipeline/telegram_review.py notify <clip_id> <path> "BREAKING: <headline> — URGENT REVIEW"` 
-- Breaking news clips can exceed the normal 1/hr pace — speed matters more than spacing for these
+- Use `python3 pipeline/telegram_review.py notify <clip_id> <path> "BREAKING: <headline> — URGENT REVIEW"`
+- Breaking news clips do NOT count toward the normal 1/hr pace — speed matters more than spacing
+- The Posting Agent will be triggered automatically by your Telegram notify call — do NOT wait for its next scheduled run
 Every run gets a summary at the end: what you found, what you drafted, what you produced, what's waiting for Leo, what's in the ready-queue.
 
 ## Rules
