@@ -204,11 +204,17 @@ def fetch_transcript(video_id: str):
 
 def window_and_deoverlap(snippets, in_point: float, out_point: float):
     """Keep snippets overlapping [in_point, out_point), shift to clip-relative
-    time, and de-overlap YouTube's rolling caption style into sequential cues."""
+    time, and de-overlap YouTube's rolling caption style into sequential cues.
+
+    YouTube's rolling captions repeat the prior cue's text with one more word
+    appended each cue (e.g. "Hello world", "Hello world how", "Hello world how are").
+    Without stripping the redundant prefix, each displayed line would be a truncated
+    repeat of all prior lines — the bug this fixes (tb018_c1, 2026-08-28)."""
     windowed = [s for s in snippets if s.start < out_point and (s.start + s.duration) > in_point]
     windowed.sort(key=lambda s: s.start)
 
     cues = []
+    prev_full_text = ""
     for i, s in enumerate(windowed):
         start = max(s.start, in_point) - in_point
         # End at the next cue's start (de-overlap), or this cue's own natural end,
@@ -219,8 +225,17 @@ def window_and_deoverlap(snippets, in_point: float, out_point: float):
             end = min(natural_end, next_start)
         else:
             end = natural_end
-        if end > start:
-            cues.append((start, end, s.text.strip()))
+
+        # Strip redundant rolling-caption prefix: each cue repeats the prior
+        # cue's text plus new words — keep only the new words
+        text = s.text.strip()
+        if prev_full_text and text.startswith(prev_full_text):
+            text = text[len(prev_full_text):].strip()
+
+        if end > start and text:
+            cues.append((start, end, text))
+
+        prev_full_text = s.text.strip()
     return cues
 
 

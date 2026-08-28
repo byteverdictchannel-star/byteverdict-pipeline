@@ -76,11 +76,11 @@ def _apply_pb_graphics(video_path, output_path, closing_question=None,
         bug_path = f"{tmp}/bug.png"
         build_bug(bug_path)
 
-        inputs = [str(video_path), "-loop", "1", "-i", bug_path]
+        inputs = ["-i", str(video_path), "-loop", "1", "-i", bug_path]
         # drawbox progress bar at extreme bottom edge
         pb_y = FRAME_H - 6
         width_expr = f"min(iw,iw*t/{duration:.3f})"
-        filter_parts = [f"drawbox=x=0:y={pb_y}:w='{width_expr}':h=6:color=0xFFD700@0.85:t=fill[bg];[0:v][1:v]overlay=20:40[base]"]
+        filter_parts = [f"[0:v]drawbox=x=0:y={pb_y}:w='{width_expr}':h=6:color=0xFFD700@0.85:t=fill[bg];[bg][1:v]overlay=20:40[base]"]
         input_idx = 2
 
         if closing_question and closing_question_start is not None:
@@ -212,7 +212,7 @@ def finalize(video_path, clip_id, out_dir, ticker=None, ticker_speed_px_per_s=18
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--video", required=True, help="Overlaid master to finalize (no subtitles — policy 2026-08-28)")
+    parser.add_argument("--video", required=True, help="Overlaid master to finalize (subtitles already burned in)")
     parser.add_argument("--clip-id", required=True)
     parser.add_argument("--out-dir", required=True)
     parser.add_argument("--ticker", default="", help="Legacy ticker text (only used with --legacy-ticker)")
