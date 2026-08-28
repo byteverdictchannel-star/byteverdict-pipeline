@@ -1,0 +1,32 @@
+=== BYTEVERDICT TB-004-C1: CANADA TARIFFS ===
+
+Clip ID: tb004-c1
+Date: 2026-08-25
+Headline: Canada Fires Back: $20B in Retaliatory Tariffs
+Source: CTV News (YouTube: youtube.com/watch?v=5w8-WKKiBwI)
+Tier: Tier 2 (major broadcast)
+Duration: 50.02s
+Resolution: 1080x1920 (9:16)
+Codec: H.264 High, AAC 128k, CRF 22
+
+Master: test-batch/exports/tb004_c1_canada_tariffs_9x16.mp4
+Size: 15,604,800 bytes
+
+Platform Exports:
+- TikTok: test-batch/exports/platform-exports/tb004_c1_canada_tariffs_tiktok_9x16.mp4
+- YouTube Shorts: test-batch/exports/platform-exports/tb004_c1_canada_tariffs_ytshorts_9x16.mp4
+- Instagram Reels: test-batch/exports/platform-exports/tb004_c1_canada_tariffs_igreels_9x16.mp4
+
+Overlay:
+- Headline: "Canada Fires Back: $20B in Retaliatory Tariffs"
+- Context: PM Mark Carney suspends trade talks with Washington / Tariffs target steel, aluminum, and other US imports / Trump threatens new auto tariffs by New Year's Day
+- Timestamp: Aug 24, 2026
+- Source: Source: CTV News
+
+Caption: Canada just fired back. PM Mark Carney announced $20 billion in retaliatory tariffs on US goods after trade talks with Washington collapsed — targeting steel, aluminum, and other American imports. Carney suspended further negotiations, and Trump responded by threatening new auto tariffs that kick in by New Year's Day. The trade war that's been building all year just hit a new level. Do you think Canada's $20 billion counterstrike will force Trump back to the table, or escalate this further? — Source: CTV News
+
+Sensitive-Content: PASS. No death, injury, graphic violence, or destroyed infrastructure. Economic/political news.
+Risk: Tier 2 copyright (CTV broadcast). Moderate repurposed-content risk.
+Logo: No persistent corner logo. CTV lower thirds eliminated by 9:16 crop. No gblur applied.
+
+Ready-to-post: test-batch/ready-to-post/tb004_c1_canada_tariffs_9x16.mp4

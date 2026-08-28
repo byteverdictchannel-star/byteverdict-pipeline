@@ -1,0 +1,32 @@
+=== BYTEVERDICT TB-004-C2: FRANCE TORNADO ===
+
+Clip ID: tb004-c2
+Date: 2026-08-25
+Headline: Tornado Rips Through Southern French Village
+Source: Euronews / AP (YouTube: youtube.com/watch?v=QO8Yr8-NHRc, STORM HQ compilation)
+Tier: Tier 2 (major broadcast wire — Euronews/AP)
+Duration: 50.00s
+Resolution: 1080x1920 (9:16)
+Codec: H.264 High, AAC 128k, CRF 22
+
+Master: test-batch/exports/tb004_c2_france_tornado_9x16.mp4
+Size: 21,421,270 bytes
+
+Platform Exports:
+- TikTok: test-batch/exports/platform-exports/tb004_c2_france_tornado_tiktok_9x16.mp4
+- YouTube Shorts: test-batch/exports/platform-exports/tb004_c2_france_tornado_ytshorts_9x16.mp4
+- Instagram Reels: test-batch/exports/platform-exports/tb004_c2_france_tornado_igreels_9x16.mp4
+
+Overlay:
+- Headline: "Tornado Rips Through Southern French Village"
+- Context: 300 homes damaged or destroyed in Pomas, Aude / At least 31 people injured, dozens hospitalized / Rare violent tornado strikes near Carcassonne
+- Timestamp: Aug 25, 2026
+- Source: Source: Euronews / AP
+
+Caption: A rare violent tornado just tore through the small French village of Pomas in the Aude region, leaving about 300 homes damaged or destroyed and at least 31 people injured. Emergency crews rushed in after the storm near Carcassonne, where roofs were torn off, cars flipped, and whole blocks left in rubble. This kind of extreme weather event is uncommon for southern France — and it hit hard. Have you ever experienced a tornado or severe storm where you live, and how prepared were you? — Source: Euronews / AP
+
+Sensitive-Content: PASS with notes. Destruction visible (roofs torn off, debris, overturned cars) but non-graphic. No death/blood/graphic violence in selected segment. 31+ injuries reported but not depicted graphically. News value in development, not graphic content. Monitor TikTok for destruction flags.
+Risk: Tier 2 copyright (Euronews/AP via STORM HQ aggregator). Moderate content sensitivity (natural disaster/destruction). 
+Logo: STORM HQ persistent in bottom-right. Gblur sigma=18 applied before 9:16 scaling. Logo also cropped out by center crop.
+
+Ready-to-post: test-batch/ready-to-post/tb004_c2_france_tornado_9x16.mp4

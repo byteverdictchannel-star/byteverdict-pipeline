@@ -1,0 +1,32 @@
+=== BYTEVERDICT TB-004-C3: TANZANIA VP RESIGNS ===
+
+Clip ID: tb004-c3
+Date: 2026-08-25
+Headline: Tanzania VP Emmanuel Nchimbi Resigns
+Source: Citizen Digital / Bloomberg (YouTube: youtube.com/watch?v=QoT7Lp4SVb8, Mabena TV live stream capture)
+Tier: Tier 2 (major African news — Bloomberg/Citizen Digital coverage)
+Duration: 50.00s
+Resolution: 1080x1920 (9:16)
+Codec: H.264 High, AAC 128k, CRF 22
+
+Master: test-batch/exports/tb004_c3_tanzania_vp_9x16.mp4
+Size: 12,886,372 bytes
+
+Platform Exports:
+- TikTok: test-batch/exports/platform-exports/tb004_c3_tanzania_vp_tiktok_9x16.mp4
+- YouTube Shorts: test-batch/exports/platform-exports/tb004_c3_tanzania_vp_ytshorts_9x16.mp4
+- Instagram Reels: test-batch/exports/platform-exports/tb004_c3_tanzania_vp_igreels_9x16.mp4
+
+Overlay:
+- Headline: "Tanzania VP Emmanuel Nchimbi Resigns"
+- Context: First VP to quit in six decades of independence / Resignation takes effect September 4, 2026 / Reported rift with President Samia Suluhu Hassan
+- Timestamp: Aug 25, 2026
+- Source: Source: Citizen Digital / Bloomberg
+
+Caption: In a historic first for Tanzania, Vice President Emmanuel Nchimbi has resigned — the first VP to quit the office in more than 60 years of independence. His resignation takes effect September 4, 2026, and reports point to a falling out with President Samia Suluhu Hassan. Nchimbi cited constitutional provisions in his resignation letter to the President. Tanzania has never seen a vice president walk away like this. Do you think this signals a bigger power shift in Tanzanian politics, or is it a one-off personal decision? — Source: Citizen Digital / Bloomberg
+
+Sensitive-Content: PASS. No death, injury, violence, or graphic content. Political resignation news.
+Risk: Tier 2 copyright (Mabena TV YouTube capture). Low content sensitivity.
+Logo: Mabena TV persistent in top-left. Gblur sigma=18 applied before 9:16 scaling. Logo also cropped out by center crop.
+
+Ready-to-post: test-batch/ready-to-post/tb004_c3_tanzania_vp_9x16.mp4
