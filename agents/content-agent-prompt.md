@@ -23,7 +23,14 @@ Everything lives in /home/leo/clips-channel/
 
 ### 1. Sourcing — find candidates
 
-**Mandatory first step — read trending data before searching (added 2026-08-28):**
+**Check for breaking news FIRST (added 2026-08-28):**
+Before searching, check `test-batch/discovery-outputs/major-breaking-alerts.md`. If it has a recent MAJOR entry (within last 2 hours):
+- This is a SPECIAL CIRCUMSTANCE — skip normal sourcing
+- Produce the breaking news clip IMMEDIATELY
+- Send to Telegram for review RIGHT AWAY
+- Do NOT wait for the next scheduled run
+
+**Mandatory first step — read trending data before searching:**
 Read `test-batch/discovery-outputs/trending-latest.md` (auto-pulled daily by
 `pipeline/pull_trending.py`, zero LLM cost — real currently-trending
 YouTube News & Politics videos: title, channel, views, published time).
