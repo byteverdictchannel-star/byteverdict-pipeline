@@ -65,9 +65,9 @@ def load_credential(path, label):
         sys.exit(1)
     # Check file permissions (should be 0o600)
     st = path.stat()
-    perms = oct(st.st_mode & 0o777)
-    if perms != "0600":
-        print(f"WARNING: {path} has insecure permissions {perms}, expected 600. Fix with: chmod 600 {path}", file=sys.stderr)
+    perms = st.st_mode & 0o777
+    if perms != 0o600:
+        print(f"WARNING: {path} has insecure permissions {oct(perms)}, expected 0o600. Fix with: chmod 600 {path}", file=sys.stderr)
     value = path.read_text().strip()
     if not value:
         print(f"ERROR: {path} is empty — {label}", file=sys.stderr)
