@@ -1,0 +1,42 @@
+# Files that must NEVER be committed to git
+# Tokens, secrets, OAuth state — all local only
+
+ig_api.env
+ig_state.json
+ig_token.json
+token.json
+client_secrets.json
+credentials/
+*.env
+.env
+__pycache__/
+*.pyc
+.DS_Store
+
+# Binary media — video/image/audio production output and raw captures.
+# These are large, produced hourly by the Content Agent, and reproducible
+# (re-run yt-dlp/production) — git history has no value here and would grow
+# unboundedly. Keep .md/.json/.txt logs tracked; only the binaries are ignored.
+test-batch/captures/*.mp4
+test-batch/captures/*.webm
+test-batch/captures/**/*.mp4
+test-batch/captures/**/*.webm
+test-batch/captures/**/*.jpg
+test-batch/captures/**/*.png
+test-batch/exports/**/*.mp4
+test-batch/exports/**/*.png
+test-batch/exports/**/*.jpg
+test-batch/exports/**/*.jpeg
+test-batch/overlays/*.png
+test-batch/overlays/*.jpg
+test-batch/overlays/*.jpeg
+test-batch/ready-to-post/*.mp4
+test-batch/narrated-headline-tests/*.mp4
+test-batch/narrated-headline-tests/*.jpg
+test-batch/narrated-headline-tests/*.jpeg
+test-batch/narrated-headline-tests/*.png
+sourcing/captures/*.mp4
+sourcing/captures/*.webm
+
+# Backup / working copies — never commit intermediate states from dev/debug
+*.bak-*
