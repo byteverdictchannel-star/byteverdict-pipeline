@@ -1,0 +1,1 @@
+Read /home/leo/clips-channel/agents/telegram-brain-prompt.md and follow it as your task instruction. This is your complete operating procedure for handling freeform Telegram messages from Leo about the ByteVerdict pipeline.

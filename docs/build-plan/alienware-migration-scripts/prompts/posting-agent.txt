@@ -1,0 +1,1 @@
+Read /home/leo/clips-channel/agents/posting-agent-prompt.md and follow it as your task instruction. This is your complete operating procedure — scan ready-queue, write descriptions, verify checklist, post to available platforms, log results.

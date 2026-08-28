@@ -1,0 +1,1 @@
+Read /home/leo/clips-channel/agents/rejection-audit-prompt.md and follow it as your task instruction. This is your complete operating procedure — classify new clip rejections, detect repeat patterns, auto-fix small verified issues in the allowlisted files only, flag everything else to Leo via Telegram.
