@@ -26,6 +26,16 @@ List test-batch/ready-to-post/. For each file not yet marked as posted:
 - Read the matching clip-log entry (same base name, .md extension)
 - If no log entry exists, flag to Leo — don't post without a log
 
+**Check shared state first (added 2026-08-28):**
+```bash
+python3 pipeline/shared_state.py status
+```
+- Check `get_approved_unposted()` — these are approved and ready to post
+- Check `get_posted_today()` — if 10+ posted today, slow down
+- Check what the Content Agent is doing (don't post into a production backlog)
+- At start: `s.set_agent_status('posting_agent', 'running', 'posting approved clips')`
+- At end: `s.set_agent_status('posting_agent', 'idle')`
+
 ### 2. Write a description/caption for each clip
 This is your core task. For each clip in the queue:
 
